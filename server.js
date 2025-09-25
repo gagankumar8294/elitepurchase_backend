@@ -17,7 +17,6 @@ mongoose.connect(process.env.MONGO_URI, {
 
 app.use("/api/products", ProductRouter);
 
-// Test route
 app.get("/", (req, res) => {
   res.send("✅ Server is running!");
 });
