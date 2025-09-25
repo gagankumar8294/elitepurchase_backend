@@ -1,27 +1,28 @@
 import express from "express";
+import Product from "../models/Product.js"; // Import Product model
 
 const ProductRouter = express.Router();
 
-// ✅ Dummy products (later we replace with MongoDB)
-const products = [
-  { id: 1, name: "Laptop", price: 55000 },
-  { id: 2, name: "Headphones", price: 2000 },
-  { id: 3, name: "Shoes", price: 33000 },
-];
-
-ProductRouter.get("/", (req, res) => {
-  res.json(products);
+// ✅ GET all products (from MongoDB)
+ProductRouter.get("/", async (req, res) => {
+  try {
+    const products = await Product.find(); // fetch from DB
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
 });
 
-ProductRouter.post("/", (req, res) => {
-  const { name, price } = req.body;
-  const newProduct = {
-    id: products.length + 1,
-    name,
-    price,
-  };
-  products.push(newProduct);
-  res.status(201).json(newProduct);
+// ✅ POST a new product (save to MongoDB)
+ProductRouter.post("/", async (req, res) => {
+  try {
+    const { name, price } = req.body;
+    const newProduct = new Product({ name, price }); // create doc
+    await newProduct.save(); // save to DB
+    res.status(201).json(newProduct);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 export default ProductRouter;
