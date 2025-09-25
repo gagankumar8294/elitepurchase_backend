@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
+  category: { type: String, default: "general" }, // optional, can filter later
 });
 
 // Export model (this creates "products" collection in MongoDB)
