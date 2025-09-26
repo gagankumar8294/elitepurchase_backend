@@ -14,22 +14,19 @@ const upload = multer({ storage });
 // ---------------- GET Products with Search & Category Filter ----------------
 ProductRouter.get("/", async (req, res) => {
   try {
-    // Get query parameters from URL
-    const { search, category } = req.query;
+    const { search, category, sort } = req.query;
 
-    // Build MongoDB filter
     const filter = {};
+    if (search) filter.name = { $regex: search, $options: "i" };
+    if (category && category !== "all") filter.category = category;
 
-    if (search) {
-      // Case-insensitive search on 'name'
-      filter.name = { $regex: search, $options: "i" };
-    }
+    let sortOption = { updatedAt: -1 }; // default: latest updated first
+    if (sort === "priceAsc") sortOption = { price: 1 };
+    if (sort === "priceDesc") sortOption = { price: -1 };
+    if (sort === "createdAsc") sortOption = { createdAt: 1 };
+    if (sort === "createdDesc") sortOption = { createdAt: -1 };
 
-    if (category && category !== "all") {
-      filter.category = category;
-    }
-
-    const products = await Product.find(filter); // Fetch filtered products
+    const products = await Product.find(filter).sort(sortOption);
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch products" });
