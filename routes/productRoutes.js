@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ---------------- GET Products with Search & Category Filter ----------------
+// ---------------- GET Products with Search, Category & Sort ----------------
 ProductRouter.get("/", async (req, res) => {
   try {
     const { search, category, sort } = req.query;
@@ -20,6 +20,7 @@ ProductRouter.get("/", async (req, res) => {
     if (search) filter.name = { $regex: search, $options: "i" };
     if (category && category !== "all") filter.category = category;
 
+    // ✅ Sorting
     let sortOption = { updatedAt: -1 }; // default: latest updated first
     if (sort === "priceAsc") sortOption = { price: 1 };
     if (sort === "priceDesc") sortOption = { price: -1 };
@@ -33,40 +34,53 @@ ProductRouter.get("/", async (req, res) => {
   }
 });
 
-ProductRouter.post("/", upload.fields([{ name: "mainImage", maxCount: 1 }, { name: "subImages" }]), async (req, res) => {
-  try {
-    const { name, price, category, description } = req.body;
+// ---------------- ADD Product ----------------
+ProductRouter.post(
+  "/",
+  upload.fields([
+    { name: "mainImage", maxCount: 1 },
+    { name: "subImages" },
+  ]),
+  async (req, res) => {
+    try {
+      const { name, price, category, description, productUrl } = req.body;
 
-    // If file uploaded, take its path, else take provided URL
-    const mainImage = req.files["mainImage"]
-      ? `/uploads/${req.files["mainImage"][0].filename}`
-      : req.body.mainImage;
+      // If file uploaded, take its path, else take provided URL
+      const mainImage = req.files["mainImage"]
+        ? `/uploads/${req.files["mainImage"][0].filename}`
+        : req.body.mainImage;
 
-    // Sub images (files + URLs mixed)
-    let subImages = [];
-    if (req.files["subImages"]) {
-      subImages = req.files["subImages"].map(file => `/uploads/${file.filename}`);
+      // Sub images (files + URLs mixed)
+      let subImages = [];
+      if (req.files["subImages"]) {
+        subImages = req.files["subImages"].map(
+          (file) => `/uploads/${file.filename}`
+        );
+      }
+      if (req.body.subImages) {
+        const urls = Array.isArray(req.body.subImages)
+          ? req.body.subImages
+          : [req.body.subImages];
+        subImages.push(...urls);
+      }
+
+      const newProduct = new Product({
+        name,
+        price,
+        category,
+        description,
+        productUrl, // ✅ store product URL
+        mainImage,
+        subImages,
+      });
+
+      await newProduct.save();
+      res.status(201).json(newProduct);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
     }
-    if (req.body.subImages) {
-      const urls = Array.isArray(req.body.subImages) ? req.body.subImages : [req.body.subImages];
-      subImages.push(...urls);
-    }
-
-    const newProduct = new Product({
-      name,
-      price,
-      category,
-      description,
-      mainImage,
-      subImages,
-    });
-
-    await newProduct.save();
-    res.status(201).json(newProduct);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
   }
-});
+);
 
 // ---------------- GET Single Product by ID ----------------
 ProductRouter.get("/:id", async (req, res) => {
@@ -82,12 +96,12 @@ ProductRouter.get("/:id", async (req, res) => {
 // ---------------- UPDATE Product by ID ----------------
 ProductRouter.put("/:id", async (req, res) => {
   try {
-    const { name, price, category } = req.body;
+    const { name, price, category, description, productUrl } = req.body;
 
     // Find product by ID and update fields
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, price, category },
+      { name, price, category, description, productUrl }, // ✅ include link
       { new: true, runValidators: true } // return updated doc & validate
     );
 

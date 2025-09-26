@@ -8,6 +8,7 @@ const productSchema = new mongoose.Schema(
     description: { type: String, default: "" },
     mainImage: { type: String, default: "" },
     subImages: [{ type: String }],
+    productUrl: { type: String, default: "" }, // 🔗 Amazon/Product link
   },
   { timestamps: true } // ✅ Adds createdAt & updatedAt automatically
 );
