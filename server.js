@@ -9,6 +9,9 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+// ✅ Enable file serving
+app.use("/uploads", express.static("uploads"));
+
 // ✅ Allow localhost (for dev) + your live frontend (Vercel domain)
 app.use(
   cors({

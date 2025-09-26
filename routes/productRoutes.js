@@ -1,7 +1,15 @@
 import express from "express";
+import multer from "multer";
 import Product from "../models/Product.js"; // Import Product model
 
 const ProductRouter = express.Router();
+
+// ✅ Setup multer (store files in "uploads/" folder)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
 
 // ---------------- GET Products with Search & Category Filter ----------------
 ProductRouter.get("/", async (req, res) => {
@@ -28,11 +36,35 @@ ProductRouter.get("/", async (req, res) => {
   }
 });
 
-ProductRouter.post("/", async (req, res) => {
+ProductRouter.post("/", upload.fields([{ name: "mainImage", maxCount: 1 }, { name: "subImages" }]), async (req, res) => {
   try {
-    const { name, price, category } = req.body;
-    const newProduct = new Product({ name, price, category }); // create doc
-    await newProduct.save(); // save to DB
+    const { name, price, category, description } = req.body;
+
+    // If file uploaded, take its path, else take provided URL
+    const mainImage = req.files["mainImage"]
+      ? `/uploads/${req.files["mainImage"][0].filename}`
+      : req.body.mainImage;
+
+    // Sub images (files + URLs mixed)
+    let subImages = [];
+    if (req.files["subImages"]) {
+      subImages = req.files["subImages"].map(file => `/uploads/${file.filename}`);
+    }
+    if (req.body.subImages) {
+      const urls = Array.isArray(req.body.subImages) ? req.body.subImages : [req.body.subImages];
+      subImages.push(...urls);
+    }
+
+    const newProduct = new Product({
+      name,
+      price,
+      category,
+      description,
+      mainImage,
+      subImages,
+    });
+
+    await newProduct.save();
     res.status(201).json(newProduct);
   } catch (err) {
     res.status(400).json({ error: err.message });
