@@ -64,3 +64,6 @@ const PORT = process.env.PORT || 3200;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
+
+
+//http://localhost:3200/api/auth/google/callback
