@@ -2,6 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
+import session from "express-session";
+import './config/passport.js';
+import passport from "passport";
+import Authrouter from "./routes/authRoutes.js";
 import ProductRouter from "./routes/productRoutes.js";
 
 dotenv.config();
@@ -21,6 +25,22 @@ app.use(
   })
 );
 
+// ✅ Session Middleware
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "mysecret", // <-- required
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
+  })
+);
+
+// ✅ Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
 // ✅ Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -32,6 +52,7 @@ mongoose
 
 // ✅ Routes
 app.use("/api/products", ProductRouter);
+app.use("/api/auth", Authrouter);
 
 // ✅ Test route
 app.get("/", (req, res) => {
