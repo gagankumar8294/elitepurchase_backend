@@ -1,3 +1,4 @@
+// routes/authRoutes.js
 import express from "express";
 import passport from "passport";
 
@@ -18,7 +19,7 @@ Authrouter.get(
     console.log("Logged in user data:", req.user);
 
     // Redirect to frontend after login
-    res.redirect("http://localhost:3000");
+    res.redirect("https://elitepurchase.in/");
   }
 );
 
@@ -34,7 +35,7 @@ Authrouter.get("/me", (req, res) => {
 // 🔹 Logout
 Authrouter.get("/logout", (req, res) => {
   req.logout(() => {
-    res.redirect("http://localhost:3000");
+    res.redirect("https://elitepurchase.in/");
   });
 });
 
