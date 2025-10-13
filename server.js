@@ -25,13 +25,20 @@ app.use(
   })
 );
 
+// ✅ Session setup (important fix)
+app.set("trust proxy", 1); // needed if you’re on Render or any proxy
+
 // ✅ Session Middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "mysecret", // <-- required
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      sameSite: "none", // ✅ required for cross-domain cookies
+      secure: true,     // ✅ required for HTTPS (Render uses HTTPS)
+    },
   })
 );
 

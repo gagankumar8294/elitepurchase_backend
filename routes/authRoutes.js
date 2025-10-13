@@ -13,7 +13,7 @@ Authrouter.get(
 // 🔹 Google Callback
 Authrouter.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login/failed" }),
+  passport.authenticate("google", { failureRedirect: "https://elitepurchase.in/login" }),
   (req, res) => {
     // ✅ Log user data in backend console
     console.log("Logged in user data:", req.user);
@@ -25,7 +25,7 @@ Authrouter.get(
 
 // 🔹 Get user info (to check if logged in)
 Authrouter.get("/me", (req, res) => {
-  if (req.user) {
+  if (req.isAuthenticated()) {
     res.json({ success: true, user: req.user });
   } else {
     res.status(401).json({ success: false, message: "Not authenticated" });
@@ -34,8 +34,10 @@ Authrouter.get("/me", (req, res) => {
 
 // 🔹 Logout
 Authrouter.get("/logout", (req, res) => {
-  req.logout(() => {
-    res.redirect("https://elitepurchase.in/");
+  req.logout((err) => {
+    if (err) return res.status(500).json({ message: "Logout error" });
+    res.clearCookie("connect.sid");
+    res.json({ message: "Logged out successfully" });
   });
 });
 
