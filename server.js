@@ -7,11 +7,14 @@ import './config/passport.js';
 import passport from "passport";
 import Authrouter from "./routes/authRoutes.js";
 import ProductRouter from "./routes/productRoutes.js";
+import loggerMiddleware from "./middlewares/logger.middleware.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+app.use(loggerMiddleware)
 
 // ✅ Enable file serving
 app.use("/uploads", express.static("uploads"));
@@ -27,7 +30,7 @@ app.use(
 
 // ✅ Session setup (important fix)
 app.set("trust proxy", 1); // needed if you’re on Render or any proxy
-
+  
 // ✅ Session Middleware
 app.use(
   session({
@@ -45,8 +48,6 @@ app.use(
 // ✅ Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
-
-
 
 // ✅ Connect to MongoDB
 mongoose

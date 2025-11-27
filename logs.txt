@@ -1,0 +1,9 @@
+{"level":"info","message":"/ - undefined","service":"request-logging"}
+{"level":"info","message":"/favicon.ico - undefined","service":"request-logging"}
+{"level":"info","message":"/api/products - undefined","service":"request-logging"}
+{"level":"info","message":"/ - undefined","service":"request-logging"}
+{"level":"info","message":"/favicon.ico - undefined","service":"request-logging"}
+{"level":"info","message":"/api/products - undefined","service":"request-logging"}
+{"level":"info","message":"/api/auth/google - undefined","service":"request-logging"}
+{"level":"info","message":"/api/auth - undefined","service":"request-logging"}
+{"level":"info","message":"/api/auth - undefined","service":"request-logging"}
