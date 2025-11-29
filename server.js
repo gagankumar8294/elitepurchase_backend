@@ -30,7 +30,7 @@ app.use(
 
 // ✅ Session setup (important fix)
 app.set("trust proxy", 1); // needed if you’re on Render or any proxy
-  
+
 // ✅ Session Middleware
 app.use(
   session({
@@ -51,10 +51,7 @@ app.use(passport.session());
 
 // ✅ Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI) 
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
